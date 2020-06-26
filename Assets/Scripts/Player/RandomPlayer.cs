@@ -8,10 +8,10 @@ namespace Reversi
 {
     public class RandomPlayer : BasePlayer
     {
-        public override int Play(eStoneType type, List<int> hands, List<eStoneType> boards, ReadOnlyCollection<int> evalutions)
+        public override GameTree Play(GameTree tree)
         {
-            int n = hands.Count;
-            return hands[Random.Range(0, n)];
+            int cnt = tree.GetEnableMoveNodes().Count;
+            return tree.GetEnableMoveNodes()[Random.Range(0, cnt)];
         }
 
         public override string ToString()

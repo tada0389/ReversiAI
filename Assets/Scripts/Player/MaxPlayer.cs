@@ -12,30 +12,31 @@ namespace Reversi
 {
     public class MaxPlayer : BasePlayer
     {
-        public override int Play(eStoneType type, List<int> hands, List<eStoneType> boards, ReadOnlyCollection<int> evalutions)
+        public override GameTree Play(GameTree tree)
         {
-            int max_num = 0;
+            // 最大の取得数の中からランダムにする
+            Dictionary<int, List<GameTree>> dict = new Dictionary<int, List<GameTree>>();
+            int max_value = -1;
 
-            // 最大の評価値からランダムにする
-            Dictionary<int, List<int>> dicts = new Dictionary<int, List<int>>();
-
-            foreach (var pos in hands)
+            foreach(var node in tree.GetEnableMoveNodes())
             {
-                int val = ReversiUtils.GetObtainStones(boards, pos, type).Count;
-                if(val > max_num)
+                int value = ReversiUtils.GetObtainStones(tree.Board, node.PrevPos, tree.StoneType).Count;
+
+                if (value > max_value)
                 {
-                    max_num = val;
-                    dicts.Add(val, new List<int>());
-                    dicts[val].Add(pos);
+                    dict.Add(value, new List<GameTree>());
+                    max_value = value;
                 }
-                else if(val == max_num)
+
+                if (value == max_value)
                 {
-                    dicts[val].Add(pos);
+                    dict[value].Add(node);
                 }
             }
 
-            int n = dicts[max_num].Count;
-            return dicts[max_num][Random.Range(0, n)];
+            int n = dict[max_value].Count;
+            return dict[max_value][Random.Range(0, n)];
+            
         }
 
         public override string ToString()
