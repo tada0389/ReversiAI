@@ -26,9 +26,14 @@ namespace Reversi
         private List<GameTree> enable_move_nodes_;
 
         // この盤面の評価値 0が黒の評価値 1が白の評価値
-        public List<int> Score { private set; get; }
+        // これも遅延評価
+        private List<int> score;
         // 黒と白の相対評価値を返す(黒 - 白)
-        public int ScoreDiff => Score[0] - Score[1];
+        public int GetScoreDiff()
+        {
+            if (score == null) score = ReversiUtils.CalcScore(Board);
+            return score[0] - score[1];
+        }
 
         // 次に移行できるノードを取得する
         public List<GameTree> GetEnableMoveNodes()
@@ -40,12 +45,12 @@ namespace Reversi
         // ゲーム木を構成する
         public GameTree(Board board, eStoneType type, int pos, bool passed)
         {
-            Board = new Board(board);
+            Board = board;
             StoneType = type;
             PrevPos = pos;
             PrevPassed = passed;
             enable_move_nodes_ = null;
-            Score = ReversiUtils.CalcScore(Board);
+            score = null;
         }
 
         // ゲーム木を構成する
@@ -56,7 +61,7 @@ namespace Reversi
             PrevPos = tree.PrevPos;
             PrevPassed = tree.PrevPassed;
             enable_move_nodes_ = tree.enable_move_nodes_;
-            Score = tree.Score;
+            score = tree.score;
         }
     }
 }

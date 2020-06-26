@@ -18,12 +18,22 @@ namespace Reversi
 
         private int SimulateRandomPlay(GameTree tree, eStoneType player)
         {
-            return 0;
+            GameTree node = new GameTree(tree);
+            int n = node.GetEnableMoveNodes().Count;
+            while(n != 0)
+            {
+                node = new GameTree(node.GetEnableMoveNodes()[Random.Range(0, n)]);
+                n = node.GetEnableMoveNodes().Count;
+            }
+
+            int ret = ReversiUtils.JudgeResult(node.Board);
+            if (player == eStoneType.White) ret *= -1;
+            return ret;
         }
 
         public override GameTree Play(GameTree tree)
         {
-            int top_value = -1;
+            int top_value = -10000;
 
             Dictionary<int, List<GameTree>> dict = new Dictionary<int, List<GameTree>>();
 

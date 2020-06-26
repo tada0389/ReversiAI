@@ -43,7 +43,7 @@ namespace Reversi
 
             foreach(var node in tree.GetEnableMoveNodes())
             {
-                int value = MiniMax(node, player, depth - 1).ScoreDiff;
+                int value = MiniMax(node, player, depth - 1).GetScoreDiff();
                 if (player == eStoneType.White) value *= -1;
 
                 if (to_max)
