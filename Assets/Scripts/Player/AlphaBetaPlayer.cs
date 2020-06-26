@@ -16,119 +16,70 @@ namespace Reversi
         [SerializeField]
         private int depth_ = 3;
 
-        //private int MiniMax(int hand, int depth, eStoneType type, List<eStoneType> boards, ReadOnlyCollection<int> evalutions)
-        //{
-        //    if (depth == 0)
-        //    {
-        //        // 手を評価する
-        //        // 盤面をすすめる
-        //        List<eStoneType> new_board = new List<eStoneType>(boards);
+        public GameTree MiniMax(GameTree tree, eStoneType player, int depth)
+        {
+            if(depth == 0)
+            {
+                // 自分自身を返す
+                return tree;
+            }
+            else if(tree.GetEnableMoveNodes().Count == 0) // ゲーム終了
+            {
+                return tree;
+            }
 
-        //        List<int> get_stones = ReversiUtils.GetObtainStones(new_board, hand, type);
-        //        int value = 0;
-        //        foreach (var pos in get_stones) value += evalutions[pos];
-        //        return value;
 
-        //        // return evalutions[hand];
-        //    }
+            // 本来置きたい手を置く場合は最も評価値の高い手を
+            // 相手の手を置く場合は最も低い手を選ぶ
 
-        //    // 置ける手を取得
-        //    var enable_hands = ReversiUtils.GetEnableHands(boards, type);
+            bool to_max = (player == tree.StoneType);
 
-        //    int inf = 100000000;
+            int top_value = 0;
+            const int inf = (int)(1e9 + 7);
+            if (to_max) top_value = -inf;
+            else top_value = inf;
 
-        //    // 大きくするか小さくするか
-        //    bool target_max = ((depth_ - depth) % 2 == 0);
-        //    //Debug.Log((target_max) ? "大きくしたい" : "小さくしたい");
+            Dictionary<int, List<GameTree>> dict = new Dictionary<int, List<GameTree>>();
 
-        //    // もう置けない
-        //    if (enable_hands.Count == 0) return (target_max) ? -inf : inf;
+            foreach(var node in tree.GetEnableMoveNodes())
+            {
+                int value = MiniMax(node, player, depth - 1).ScoreDiff;
+                if (player == eStoneType.White) value *= -1;
 
-        //    int best_value = (target_max) ? -inf : inf;
+                if (to_max)
+                {
+                    if(value > top_value)
+                    {
+                        top_value = value;
+                        dict.Add(value, new List<GameTree>());
+                    }
+                    if(value == top_value)
+                    {
+                        dict[value].Add(node);
+                    }
+                }
+                else
+                {
+                    if(value < top_value)
+                    {
+                        top_value = value;
+                        dict.Add(value, new List<GameTree>());
+                    }
+                    if (value == top_value)
+                    {
+                        dict[value].Add(node);
+                    }
+                }
+            }
 
-        //    foreach (var pos in enable_hands) 
-        //    {
-        //        // 盤面をすすめる
-        //        List<eStoneType> new_board = new List<eStoneType>(boards);
-
-        //        List<int> get_stones = ReversiUtils.GetObtainStones(new_board, pos, type);
-
-        //        foreach (var index in get_stones)
-        //        {
-        //            new_board[index] = type;
-        //        }
-
-        //        eStoneType next_type = eStoneType.White;
-        //        if (type == eStoneType.White) next_type = eStoneType.Black;
-
-        //        int val = MiniMax(pos, depth - 1, next_type, new_board, evalutions);
-
-        //        if (target_max)
-        //        {
-        //            if(val >= best_value)
-        //            {
-        //                best_value = val;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            if(-val <= best_value)
-        //            {
-        //                best_value = -val;
-        //            }
-        //        }
-        //    }
-
-        //    //Debug.Log(((target_max) ? "大きくしたい" : "小さくしたい") + " => " + best_value);
-        //    return best_value; 
-        //}
-
-        //public override int Play(eStoneType type, List<int> hands, List<eStoneType> boards, ReadOnlyCollection<int> evalutions)
-        //{
-        //    // 完全にMinimaxの再帰関数で回す予定だったけど
-
-        //    int best_value = -10000000;
-
-        //    // 最大の評価値からランダムにする
-        //    Dictionary<int, List<int>> dicts = new Dictionary<int, List<int>>();
-
-        //    // 今ある手を全探索
-        //    foreach(var pos in hands)
-        //    {
-        //        // 盤面をすすめる
-        //        List<eStoneType> new_board = new List<eStoneType>(boards);
-
-        //        List<int> get_stones = ReversiUtils.GetObtainStones(new_board, pos, type);
-
-        //        foreach (var index in get_stones)
-        //        {
-        //            new_board[index] = type;
-        //        }
-
-        //        eStoneType next_type = eStoneType.White;
-        //        if (type == eStoneType.White) next_type = eStoneType.Black;
-
-        //        int val = MiniMax(pos, depth_ - 1, next_type, new_board, evalutions);
-
-        //        if(val > best_value)
-        //        {
-        //            best_value = val;
-        //            dicts.Add(val, new List<int>());
-        //            dicts[val].Add(pos);
-        //        }
-        //        else if (val == best_value)
-        //        {
-        //            dicts[val].Add(pos);
-        //        }
-        //    }
-
-        //    int n = dicts[best_value].Count;
-        //    return dicts[best_value][Random.Range(0, n)];
-        //}
+            // 最も良いやつからランダム
+            int n = dict[top_value].Count;
+            return dict[top_value][Random.Range(0, n)];
+        }
 
         public override GameTree Play(GameTree tree)
         {
-            return tree.GetEnableMoveNodes()[0];
+            return MiniMax(tree, tree.StoneType, depth_);
         }
 
         public override string ToString()

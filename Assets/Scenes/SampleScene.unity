@@ -1084,7 +1084,7 @@ MonoBehaviour:
   trial_num_: 100
   game_interval_time_: 0.24
   players_:
-  - {fileID: 1056626665}
+  - {fileID: 1921547005}
   - {fileID: 983863257}
   ai_think_time_: 0.25
 --- !u!4 &1742238624

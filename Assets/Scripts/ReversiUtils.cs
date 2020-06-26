@@ -154,6 +154,23 @@ namespace Reversi
             return get_stones_;
         }
 
+        // どちらの勝ちか 1なら黒の勝ち -1なら白の勝ち 0なら引き分け
+        public static int JudgeResult(Board board)
+        {
+            int b_num = 0;
+            int w_num = 0;
+
+            for(int i = 0; i < 64; ++i)
+            {
+                if (board[i] == eStoneType.Black) ++b_num;
+                else if (board[i] == eStoneType.White) ++w_num;
+            }
+
+            if (b_num == w_num) return 0;
+            if (b_num > w_num) return 1;
+            return -1;
+        }
+
         // 現在の盤面の評価値を計算する
         public static List<int> CalcScore(Board board)
         {
