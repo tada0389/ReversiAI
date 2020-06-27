@@ -19,12 +19,12 @@ namespace Reversi
 
         public GameTree MiniMax(GameTree tree, eStoneType player, int depth)
         {
-            if(depth == 0)
+            if (depth == 0)
             {
                 // 自分自身を返す
                 return tree;
             }
-            else if(tree.GetEnableMoveNodes().Count == 0) // ゲーム終了
+            else if (tree.GetEnableMoveNodes().Count == 0) // ゲーム終了
             {
                 return tree;
             }
@@ -42,26 +42,26 @@ namespace Reversi
 
             Dictionary<int, List<GameTree>> dict = new Dictionary<int, List<GameTree>>();
 
-            foreach(var node in tree.GetEnableMoveNodes())
+            foreach (var node in tree.GetEnableMoveNodes())
             {
                 int value = MiniMax(node, player, depth - 1).GetScoreDiff();
                 if (player == eStoneType.White) value *= -1;
 
                 if (to_max)
                 {
-                    if(value > top_value)
+                    if (value > top_value)
                     {
                         top_value = value;
                         dict.Add(value, new List<GameTree>());
                     }
-                    if(value == top_value)
+                    if (value == top_value)
                     {
                         dict[value].Add(node);
                     }
                 }
                 else
                 {
-                    if(value < top_value)
+                    if (value < top_value)
                     {
                         top_value = value;
                         dict.Add(value, new List<GameTree>());

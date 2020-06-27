@@ -7,6 +7,9 @@ using UnityEngine;
 /// <summary>
 /// モンテカルロ木探索AI
 /// オセロ固有の知識がなくても強い
+/// 
+/// 相手の手をAlphaBeta法だと考え，より強くしたい
+/// 考えも実装
 /// </summary>
 
 namespace Reversi
@@ -121,6 +124,7 @@ namespace Reversi
         }
 
         // 実際にシミュレーションする 勝ち 1 引き分け 0.5 負け 0
+        // 自分相手の手はランダム
         public float SimulateRandomPlay(eStoneType player)
         {
             GameTree node = GameTree;
@@ -128,6 +132,23 @@ namespace Reversi
             while (n != 0)
             {
                 node = new GameTree(node.GetEnableMoveNodes()[Random.Range(0, n)]);
+                n = node.GetEnableMoveNodes().Count;
+            }
+
+            int ret = ReversiUtils.JudgeResult(node.Board);
+            if (player == eStoneType.White) ret *= -1;
+            return ret / 2f + 0.5f;
+        }
+
+        // 実際にシミュレーションする 勝ち 1 引き分け 0.5 負け 0
+        // 相手の手法を引数で渡す
+        public float SimulateSelectedPlay(eStoneType player, BasePlayer opponent)
+        {
+            GameTree node = GameTree;
+            int n = node.GetEnableMoveNodes().Count;
+            while(n != 0)
+            {
+                node = opponent.Play(node);
                 n = node.GetEnableMoveNodes().Count;
             }
 
@@ -154,6 +175,9 @@ namespace Reversi
         [SerializeField]
         private int trial_num_ = 100;
 
+        [SerializeField]
+        private BasePlayer virtual_opponent_;
+
         public override GameTree Play(GameTree tree)
         {
             // ノード生成
@@ -175,8 +199,13 @@ namespace Reversi
                     node = node.ExpandChildNode();
                 }
 
-                // シミュレーションさせて逆伝播させる
-                node.BackPropagate(node.SimulateRandomPlay(tree.StoneType));
+                float score = 0f;
+                // もし仮想敵がいる場合はその敵を見立ててシミュレーションする
+                if (virtual_opponent_ != null) score = node.SimulateSelectedPlay(tree.StoneType, virtual_opponent_);
+                else score = node.SimulateRandomPlay(tree.StoneType);
+
+                // 逆伝播させる
+                node.BackPropagate(score);
             }
 
             // なるほどなぁ
