@@ -6,6 +6,7 @@ using UnityEngine;
 
 /// <summary>
 /// いまはMiniMaxだけど，AlphaBetaとの差は計算時間だけなので時間あるときやる
+/// (ゲームAIの性能をまず見たいので)
 /// </summary>
 
 namespace Reversi

@@ -25,19 +25,6 @@ namespace Reversi
             Values = new List<eStoneType>(board.Values);
         }
 
-        //// 石を置く
-        //public void PutStone(int pos, eStoneType type)
-        //{
-        //    // UnityEngine.Assertions.Assert.IsTrue(pos )
-        //    Values[pos] = type;
-        //}
-
-        //// 石を置く
-        //public void PutStone(int x, int y, eStoneType type)
-        //{
-
-        //}
-
         public eStoneType this[int x, int y]
         {
             get

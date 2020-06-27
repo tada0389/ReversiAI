@@ -18,8 +18,9 @@ namespace Reversi
 
         private int SimulateRandomPlay(GameTree tree, eStoneType player)
         {
-            GameTree node = new GameTree(tree);
+            GameTree node = tree;
             int n = node.GetEnableMoveNodes().Count;
+            // ゲームが終了するまでやる
             while(n != 0)
             {
                 node = new GameTree(node.GetEnableMoveNodes()[Random.Range(0, n)]);
@@ -44,6 +45,7 @@ namespace Reversi
                 for (int i = 0; i < trial_num_; ++i) 
                     value += SimulateRandomPlay(node, tree.StoneType);
 
+                // 勝った数の最大値が複数個あった場合はその中からランダムにできるようにする
                 if(value > top_value)
                 {
                     top_value = value;

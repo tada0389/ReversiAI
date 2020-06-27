@@ -56,40 +56,45 @@ namespace Reversi
 
         private IEnumerator GameFlow()
         {
-            // ゲームを初期化
-            InitGame();
-
-            renderer_.Reset();
-            renderer_.ProcBoard(game_tree_);
-            renderer_.ShowPlayerNames(players_);
-
-            while (true)
+            while (trial_num_ != 0)
             {
-                GameTree next_game_tree = null;
-                // 入力を待つ
-                while (next_game_tree == null)
+                // ゲームを初期化
+                InitGame();
+
+                renderer_.Reset();
+                renderer_.ProcBoard(game_tree_);
+                renderer_.ShowPlayerNames(players_);
+
+                while (true)
                 {
-                    next_game_tree = players_[(int)game_tree_.StoneType - 1].Play(game_tree_);
-                    yield return null;
+                    GameTree next_game_tree = null;
+                    // 入力を待つ
+                    while (next_game_tree == null)
+                    {
+                        next_game_tree = players_[(int)game_tree_.StoneType - 1].Play(game_tree_);
+                        yield return null;
+                    }
+
+                    // 現在のノードの更新
+                    game_tree_ = next_game_tree;
+
+                    // 描画情報の更新
+                    renderer_.ProcBoard(game_tree_);
+
+                    // 次の移行先がないなら終了
+                    if (game_tree_.GetEnableMoveNodes().Count == 0) break;
+
+                    yield return new WaitForSeconds(ai_think_time_);
                 }
 
-                // 現在のノードの更新
-                game_tree_ = next_game_tree;
+                // 勝敗処理
+                renderer_.ProcResult();
 
-                // 描画情報の更新
-                renderer_.ProcBoard(game_tree_);
+                // 終了処理
+                FinalizeGame();
 
-                // 次の移行先がないなら終了
-                if (game_tree_.GetEnableMoveNodes().Count == 0) break;
-
-                yield return new WaitForSeconds(ai_think_time_);
+                yield return new WaitForSeconds(0.5f);
             }
-
-            // 勝敗処理
-            renderer_.ProcResult();
-
-            // 終了処理
-            FinalizeGame();
         }
 
         // ゲームを初期化する
