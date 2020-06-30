@@ -1263,11 +1263,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67ad5500633fc7c4f8f47c32d8b2a07c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  trial_num_: 100
+  trial_num_: 50
   game_interval_time_: 0.24
   players_:
-  - {fileID: 240517262}
   - {fileID: 983863257}
+  - {fileID: 240517262}
   ai_think_time_: 0.01
 --- !u!4 &1742238624
 Transform:

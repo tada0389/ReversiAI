@@ -148,7 +148,9 @@ namespace Reversi
             int n = node.GetEnableMoveNodes().Count;
             while(n != 0)
             {
-                node = opponent.Play(node);
+                // 自分の番ならランダムに 相手の番なら指定した手法を用いて考える
+                if(node.StoneType == player) node = new GameTree(node.GetEnableMoveNodes()[Random.Range(0, n)]);
+                else node = opponent.Play(node);
                 n = node.GetEnableMoveNodes().Count;
             }
 
@@ -168,6 +170,12 @@ namespace Reversi
                 node = node.Parent;
             }
         }
+
+        // 親ノードを破棄する
+        public void DeleteParent()
+        {
+            Parent = null;
+        }
     }
 
     public class MCTSPlayer : BasePlayer
@@ -178,10 +186,38 @@ namespace Reversi
         [SerializeField]
         private BasePlayer virtual_opponent_;
 
+        private Node cur_node_ = null;
+
         public override GameTree Play(GameTree tree)
         {
             // ノード生成
-            Node root = new Node(tree, null);
+            // open loop search的なことをして再利用する
+            Node root;
+            if (cur_node_ == null) root = new Node(tree, null);
+            else
+            {
+                root = cur_node_;
+                root.DeleteParent();
+                // 相手が選んだ手の方向に進める
+                bool find = false;
+                foreach(var child in root.Childs)
+                {
+                    if(child.GameTree.PrevPos == tree.PrevPos)
+                    {
+                        find = true;
+                        cur_node_ = child;
+                        root = cur_node_;
+                        root.DeleteParent();
+                        break;
+                    }
+                }
+                if (!find)
+                {
+                    root = new Node(tree, null);
+                    cur_node_ = null;
+                }
+            }
+            root.DeleteParent();
 
             for(int i = 0; i < trial_num_; ++i)
             {
@@ -229,6 +265,7 @@ namespace Reversi
 
             int n = dict[top_value].Count;
             var ret = dict[top_value][Random.Range(0, n)];
+            cur_node_ = ret;
             //Debug.Log(ret.WinNum + " " + ret.VisitNum + " " + ret.WinNum / ret.VisitNum);
             return ret.GameTree;
         }
